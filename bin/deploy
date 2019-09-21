@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Make sure PROJECT_NAME is set for the siteConfig.js file
+if [ -z ${PROJECT_NAME+x} ]; then
+  echo "PROJECT_NAME is not set, falling back to default"
+  PROJECT_NAME=${GITHUB_REPOSITORY#*/}
+else
+  echo "PROJECT_NAME is set to '$PROJECT_NAME'"
+fi
+
+  # Make sure BUILD_DIR is set and default to website
+if [ -z ${BUILD_DIR+x} ]; then
+  echo "BUILD_DIR is not set, falling back to default"
+  BUILD_DIR="website"
+else
+  echo "BUILD_DIR is set to '$BUILD_DIR'"
+fi
+
+# Change into the build directory
+cd $BUILD_DIR;
+
+git config --global user.name "$GITHUB_ACTOR" && \
+git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com" && \
+npm run build && \
+npx gh-pages -d "build/$PROJECT_NAME" --repo "https://github.com:$GHPATH@github.com/oscarpolanco/docs_example.git"
+# We need for force an SSH connection to use the SSH key so
+# we can specify the `--repo` flag to make sure `gh-pages`
+# uses the SSH url https://github.com/tschaub/gh-pages/issues/160
